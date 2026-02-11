@@ -1,15 +1,15 @@
 package com.back.domain.chat.chatMessage.controller
 
 import com.back.domain.chat.chatMessage.entity.ChatMessage
-import com.back.global.sse.SseEmitters
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import org.springframework.messaging.simp.SimpMessagingTemplate
 
 @RestController
 @RequestMapping("/api/v1/chat/rooms/{chatRoomId}/messages")
 @CrossOrigin(origins = ["https://cdpn.io"])
 class ApiV1ChatMessageController(
-    private val sseEmitters: SseEmitters
+    private val messagingTemplate: SimpMessagingTemplate,
 ) {
     private var lastChatMessageId = 0
 
@@ -70,7 +70,6 @@ class ApiV1ChatMessageController(
         )
     )
 
-
     @GetMapping
     fun getItems(
         @PathVariable chatRoomId: Int,
@@ -105,8 +104,7 @@ class ApiV1ChatMessageController(
 
         chatMessages.add(chatMessage)
 
-        //메시지 작성 이벤트마다 SSE 발행
-        sseEmitters.send("chat__room__$chatRoomId", "chat__messageCreated", chatMessage)
+        messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/messageCreated", chatMessage)
 
         return chatMessage
     }
@@ -122,10 +120,10 @@ class ApiV1ChatMessageController(
             "새로운 사용자가 입장했습니다."
         )
 
-        sseEmitters.send("chat__room__$chatRoomId", "chat__systemMessageCreated", systemMessage)
+        messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/systemMessageCreated", systemMessage)
     }
 
-    @DeleteMapping("/exit")
+    @PostMapping("/exit")
     fun exit(@PathVariable chatRoomId: Int) {
         val systemMessage = ChatMessage(
             ++lastChatMessageId,
@@ -136,6 +134,6 @@ class ApiV1ChatMessageController(
             "어떤 사용자가 퇴장했습니다."
         )
 
-        sseEmitters.send("chat__room__$chatRoomId", "chat__systemMessageCreated", systemMessage)
+        messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/systemMessageCreated", systemMessage)
     }
 }

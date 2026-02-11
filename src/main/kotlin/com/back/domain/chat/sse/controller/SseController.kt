@@ -1,10 +1,9 @@
-package com.back.domain.sse.controller
+package com.back.domain.chat.sse.controller
 
 import com.back.global.sse.SseEmitters
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
-import java.io.IOException
 
 @RestController
 @RequestMapping("/sse")
