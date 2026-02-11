@@ -104,6 +104,7 @@ class ApiV1ChatMessageController(
 
         chatMessages.add(chatMessage)
 
+        //sseEmitters.send("chat__room__$chatRoomId", "chat__messageCreated", chatMessage)
         messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/messageCreated", chatMessage)
 
         return chatMessage
@@ -120,6 +121,7 @@ class ApiV1ChatMessageController(
             "새로운 사용자가 입장했습니다."
         )
 
+        //sseEmitters.send("chat__room__$chatRoomId", "chat__systemMessageCreated", systemMessage)
         messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/systemMessageCreated", systemMessage)
     }
 
@@ -134,6 +136,7 @@ class ApiV1ChatMessageController(
             "어떤 사용자가 퇴장했습니다."
         )
 
+        //sseEmitters.send("chat__room__$chatRoomId", "chat__systemMessageCreated", systemMessage)
         messagingTemplate.convertAndSend("/topic/chat/room/$chatRoomId/systemMessageCreated", systemMessage)
     }
 }
